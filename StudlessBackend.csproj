@@ -24,9 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\" />
       <Folder Include="Dtos\" />
-      <Folder Include="Persistence\Repositories\" />
       <Folder Include="Services\Implementations\" />
     </ItemGroup>
 
