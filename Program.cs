@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using StudlessBackend.Persistence;
+using StudlessBackend.Persistence.Repositories;
+using StudlessBackend.Persistence.Repositories.Impl;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,8 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 });
+// Dependency injection
+builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
 
 var app = builder.Build();
 
