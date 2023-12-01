@@ -1,6 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using StudlessBackend.Dtos;
+using StudlessBackend.Dto;
 using StudlessBackend.Persistence.Models;
 using StudlessBackend.Persistence.Repositories;
 
@@ -23,7 +23,31 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(200, Type = typeof(IEnumerable<Question>))]
     public IActionResult GetQuestions()
     {
-        var questions = _mapper.Map<List<QuestionDto>>(_questionRepository.GetQuestions());
-        return Ok(questions);
+        var result = _mapper.Map<List<QuestionDto>>(_questionRepository.GetQuestions());
+        return Ok(result);
+    }
+
+    [HttpGet("{id}")]
+    [ProducesResponseType(200, Type = typeof(Question))]
+    public IActionResult GetQuestion(long id)
+    {
+        var result = _mapper.Map<QuestionDto>(_questionRepository.GetQuestion(id));
+        return Ok(result);
+    }
+
+    [HttpPost]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    public IActionResult AddQuestion([FromBody] QuestionDto? dto, [FromQuery] long tagId)
+    {
+        if (dto == null)
+            return BadRequest(ModelState);
+
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+   
+        var objectToSave = _mapper.Map<Question>(dto);
+        _questionRepository.AddQuestion(objectToSave, tagId);
+        return Ok("Successfully created");
     }
 }
