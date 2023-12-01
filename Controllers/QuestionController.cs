@@ -27,11 +27,16 @@ public class QuestionController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:long}")]
     [ProducesResponseType(200, Type = typeof(Question))]
+    [ProducesResponseType(404)]
     public IActionResult GetQuestion(long id)
     {
         var result = _mapper.Map<QuestionDto>(_questionRepository.GetQuestion(id));
+        
+        if (result == null)
+            return NotFound($"Question with id = {id} was not found");
+        
         return Ok(result);
     }
 
@@ -47,7 +52,56 @@ public class QuestionController : ControllerBase
             return BadRequest(ModelState);
    
         var objectToSave = _mapper.Map<Question>(dto);
-        _questionRepository.AddQuestion(objectToSave, tagId);
+        var result = _questionRepository.AddQuestion(objectToSave, tagId);
+        
+        if (!result)
+            return BadRequest(ModelState);
+        
         return Ok("Successfully created");
+    }
+
+    [HttpPut("{id:long}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    public IActionResult UpdateQuestion([FromBody] QuestionDto? updatedDtoObject, long id)
+    {
+        if (updatedDtoObject == null)
+            return BadRequest(ModelState);
+
+        if (id != updatedDtoObject.Id)
+            return BadRequest(ModelState);
+
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var objectToUpdate = _mapper.Map<Question>(updatedDtoObject);
+        var result = _questionRepository.UpdateQuestion(objectToUpdate);
+        
+        if (!result)
+            return BadRequest(ModelState);
+        
+        return NoContent();
+    }
+
+    [HttpDelete("{id:long}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    public IActionResult DeleteQuestion(long id)
+    {
+        var questionToDelete = _questionRepository.GetQuestion(id);
+        
+        if (questionToDelete == null)
+            return NotFound($"Question with id = {id} don't exist");
+        
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var result = _questionRepository.DeleteQuestion(questionToDelete);
+
+        if (!result)
+            return BadRequest(ModelState);
+        
+        return NoContent();
     }
 }

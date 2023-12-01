@@ -16,17 +16,31 @@ public class QuestionRepository : IQuestionRepository
         return _context.Questions!.OrderBy(q => q.Id).ToList();
     }
 
-    public Question GetQuestion(long id)
+    public Question? GetQuestion(long id)
     {
-        var retrievedQuestion = _context.Questions!.FirstOrDefault(q => q!.Id == id);
-        if (retrievedQuestion == null)
-            throw new InvalidOperationException();
-        return retrievedQuestion;
+        return _context.Questions!.FirstOrDefault(q => q.Id == id);
+    }
+
+    public bool Save()
+    {
+        return _context.SaveChanges() > 0;
     }
 
     public bool AddQuestion(Question question, long tagId)
     {
         _context.Add(question);
-        return _context.SaveChanges() > 0;
+        return Save();
+    }
+
+    public bool UpdateQuestion(Question question)
+    {
+        _context.Update(question);
+        return Save();
+    }
+
+    public bool DeleteQuestion(Question questionToDelete)
+    {
+        _context.Remove(questionToDelete);
+        return Save();
     }
 }
