@@ -17,6 +17,7 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 });
 // Dependency injection
 builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+builder.Services.AddScoped<ITagRepository, TagRepository>();
 
 var app = builder.Build();
 
