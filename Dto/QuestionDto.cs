@@ -12,5 +12,5 @@ public class QuestionDto
     public DateTime AskedDate { get; set; }
     public UserDto? Author { get; set; }
     public ICollection<AnswerDto>? Answers { get; set; }
-    //TODO public ICollection<TagDto> Tags { get; set; }
+    public ICollection<TagDto>? Tags { get; set; }
 }

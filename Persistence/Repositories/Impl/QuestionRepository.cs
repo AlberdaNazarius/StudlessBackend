@@ -28,6 +28,15 @@ public class QuestionRepository : IQuestionRepository
 
     public bool AddQuestion(Question question, long tagId)
     {
+        var tag = _context.Tags!.FirstOrDefault(t => t.Id == tagId);
+
+        var questionTag = new QuestionTag()
+        {
+            Question = question,
+            Tag = tag
+        };
+
+        _context.Add(questionTag);
         _context.Add(question);
         return Save();
     }
