@@ -1,6 +1,6 @@
 using StudlessBackend.Persistence.Models;
 
-namespace StudlessBackend.Dtos;
+namespace StudlessBackend.Dto;
 
 public class QuestionDto
 {
@@ -10,6 +10,7 @@ public class QuestionDto
     public int Votes { get; set; }
     public int Views { get; set; }
     public DateTime AskedDate { get; set; }
-    public User? Author { get; set; }
-    public ICollection<Answer>? Answers { get; set; }
+    public UserDto? Author { get; set; }
+    public ICollection<AnswerDto>? Answers { get; set; }
+    //TODO public ICollection<TagDto> Tags { get; set; }
 }
