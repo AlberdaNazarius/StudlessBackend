@@ -21,18 +21,18 @@ public class TagController: ControllerBase
 
     [HttpGet("tags")]
     [ProducesResponseType(200)]
-    public IActionResult GetTags()
+    public async Task<IActionResult> GetTags()
     {
-        var result = _mapper.Map<List<TagDto>>(_tagRepository.GetTags().Result);
+        var result = _mapper.Map<List<TagDto>>(await _tagRepository.GetTags());
         return Ok(result);
     }
     
     [HttpGet("{id:long}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
-    public IActionResult GetTag(long id)
+    public async Task<IActionResult> GetTag(long id)
     {
-        var result = _mapper.Map<TagDto>(_tagRepository.GetTag(id).Result);
+        var result = _mapper.Map<TagDto>(await _tagRepository.GetTag(id));
         
         if (result == null)
             return NotFound($"Tag with id: {id} was not found");
@@ -43,7 +43,7 @@ public class TagController: ControllerBase
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public IActionResult AddTag([FromBody] TagDto? dto)
+    public async Task<IActionResult> AddTag([FromBody] TagDto? dto)
     {
         if (dto == null)
             return BadRequest(ModelState);
@@ -52,7 +52,7 @@ public class TagController: ControllerBase
             return BadRequest(ModelState);
    
         var objectToSave = _mapper.Map<Tag>(dto);
-        var result = _tagRepository.AddTag(objectToSave).Result;
+        var result = await _tagRepository.AddTag(objectToSave);
         
         if (!result)
             return BadRequest(ModelState);
@@ -64,9 +64,9 @@ public class TagController: ControllerBase
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public IActionResult DeleteTag(long id)
+    public async Task<IActionResult> DeleteTag(long id)
     {
-        var tagToDelete = _tagRepository.GetTag(id).Result;
+        var tagToDelete = await _tagRepository.GetTag(id);
         
         if (tagToDelete == null)
             return NotFound($"Question with id: {id} don't exist");
@@ -74,7 +74,7 @@ public class TagController: ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var result = _tagRepository.DeleteTag(tagToDelete).Result;
+        var result = await _tagRepository.DeleteTag(tagToDelete);
 
         if (!result)
             return BadRequest(ModelState);
