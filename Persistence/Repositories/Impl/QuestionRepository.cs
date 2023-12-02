@@ -35,15 +35,15 @@ public class QuestionRepository : IQuestionRepository
 
         foreach (var questionTag in question.QuestionTags!)
         {
-            var tag = await _context.Tags!.FirstOrDefaultAsync(e => e.Id == questionTag.TagId);
+            var tag = await _context.Tags!.FirstOrDefaultAsync(t => t.Id == questionTag.TagId);
             questionTag.Tag = tag;
         }
 
         foreach (var answer in question.Answers!)
         {
             var answerWithAuthor = await _context.Answers!
-                .Include(e => e.Author)
-                .FirstOrDefaultAsync(e => e.Id == answer.Id);
+                .Include(a => a.Author)
+                .FirstOrDefaultAsync(a => a.Id == answer.Id);
             answer.Author = answerWithAuthor!.Author;
         }
         
@@ -57,8 +57,8 @@ public class QuestionRepository : IQuestionRepository
     
     public async Task<bool> AddTag(long questionId, long tagId)
     {
-        var question = await _context.Questions!.FirstOrDefaultAsync(e => e.Id == questionId);
-        var tag = await _context.Tags!.FirstOrDefaultAsync(e => e.Id == tagId);
+        var question = await _context.Questions!.FirstOrDefaultAsync(q => q.Id == questionId);
+        var tag = await _context.Tags!.FirstOrDefaultAsync(t => t.Id == tagId);
         
         var questionTag = new QuestionTag()
         {

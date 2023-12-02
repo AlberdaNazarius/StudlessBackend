@@ -57,7 +57,7 @@ public class TagController: ControllerBase
         if (!result)
             return BadRequest(ModelState);
         
-        return Ok("Successfully created");
+        return Ok("Tag was successfully created");
     }
     
     [HttpDelete("{id:long}")]

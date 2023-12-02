@@ -19,7 +19,7 @@ public class TagRepository : ITagRepository
 
     public async Task<Tag?> GetTag(long id)
     {
-        return await _context.Tags!.FirstOrDefaultAsync(e => e.Id == id);
+        return await _context.Tags!.FirstOrDefaultAsync(t => t.Id == id);
     }
 
     public async Task<bool> Save()

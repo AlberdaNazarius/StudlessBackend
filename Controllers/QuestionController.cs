@@ -48,7 +48,7 @@ public class QuestionController : ControllerBase
         var question = await _questionRepository.GetQuestion(questionId);
         
         if (question == null)
-            return NotFound($"Question with id = {questionId} was not found");
+            return NotFound($"Question with id: {questionId} was not found");
         
         var result = await _questionRepository.AddTag(questionId, tagId);
         
@@ -75,7 +75,7 @@ public class QuestionController : ControllerBase
         if (!result)
             return BadRequest(ModelState);
         
-        return Ok("Successfully created");
+        return Ok("Question was successfully created");
     }
 
     [HttpPut("{id:long}")]
@@ -107,7 +107,7 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(404)]
     public async Task<IActionResult> DeleteQuestion(long id)
     {
-        var questionToDelete = _questionRepository.GetQuestion(id).Result;
+        var questionToDelete = await _questionRepository.GetQuestion(id);
         
         if (questionToDelete == null)
             return NotFound($"Question with id: {id} don't exist");
