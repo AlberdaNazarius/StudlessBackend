@@ -12,45 +12,53 @@ public class QuestionRepository : IQuestionRepository
         _context = context;
     }
 
-    public ICollection<Question> GetQuestions()
+    public async Task<ICollection<Question>> GetQuestions()
     {
-        return _context.Questions!.OrderBy(q => q.Id).ToList();
-    }
-
-    public Question? GetQuestion(long id)
-    {
-        var question = _context.Questions!
+        return await _context.Questions!
             .Include(q => q.Author)
             .Include(q => q.QuestionTags)
             .Include(q => q.Answers)
-            .FirstOrDefault(q => q.Id == id);
+            .OrderBy(q => q.Id)
+            .ToListAsync();
+    }
 
-        foreach (var questionTag in question!.QuestionTags!)
+    public async Task<Question?> GetQuestion(long id)
+    {
+        var question = await _context.Questions!
+            .Include(q => q.Author)
+            .Include(q => q.QuestionTags)
+            .Include(q => q.Answers)
+            .FirstOrDefaultAsync(q => q.Id == id);
+
+        if (question == null)
+            return null;
+
+        foreach (var questionTag in question.QuestionTags!)
         {
-            var tag = _context.Tags!.FirstOrDefault(e => e.Id == questionTag.TagId);
+            var tag = await _context.Tags!.FirstOrDefaultAsync(e => e.Id == questionTag.TagId);
             questionTag.Tag = tag;
         }
 
         foreach (var answer in question.Answers!)
         {
-            var answerWithAuthor = _context.Answers!
+            var answerWithAuthor = await _context.Answers!
                 .Include(e => e.Author)
-                .FirstOrDefault(e => e.Id == answer.Id);
+                .FirstOrDefaultAsync(e => e.Id == answer.Id);
             answer.Author = answerWithAuthor!.Author;
         }
         
         return question;
     }
 
-    public bool Save()
+    public async Task<bool> Save()
     {
-        return _context.SaveChanges() > 0;
+        return await _context.SaveChangesAsync() > 0;
     }
     
-    public bool AddTag(long questionId, long tagId)
+    public async Task<bool> AddTag(long questionId, long tagId)
     {
-        var question = _context.Questions!.FirstOrDefault(e => e.Id == questionId);
-        var tag = _context.Tags!.FirstOrDefault(e => e.Id == tagId);
+        var question = await _context.Questions!.FirstOrDefaultAsync(e => e.Id == questionId);
+        var tag = await _context.Tags!.FirstOrDefaultAsync(e => e.Id == tagId);
         
         var questionTag = new QuestionTag()
         {
@@ -58,25 +66,25 @@ public class QuestionRepository : IQuestionRepository
             Tag = tag
         };
         
-        _context.Add(questionTag);
-        return Save();
+        await _context.AddAsync(questionTag);
+        return await Save();
     }
 
-    public bool AddQuestion(Question question)
+    public async Task<bool> AddQuestion(Question question)
     {
-        _context.Add(question);
-        return Save();
+        await _context.AddAsync(question);
+        return await Save();
     }
 
-    public bool UpdateQuestion(Question question)
+    public async Task<bool> UpdateQuestion(Question question)
     {
         _context.Update(question);
-        return Save();
+        return await Save();
     }
 
-    public bool DeleteQuestion(Question questionToDelete)
+    public async Task<bool> DeleteQuestion(Question questionToDelete)
     {
         _context.Remove(questionToDelete);
-        return Save();
+        return await Save();
     }
 }

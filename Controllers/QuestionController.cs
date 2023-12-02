@@ -23,7 +23,7 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(200, Type = typeof(IEnumerable<Question>))]
     public IActionResult GetQuestions()
     {
-        var result = _questionRepository.GetQuestions();
+        var result = _mapper.Map<List<QuestionDto>>(_questionRepository.GetQuestions().Result);
         return Ok(result);
     }
 
@@ -32,25 +32,25 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(404)]
     public IActionResult GetQuestion(long id)
     {
-        var result = _mapper.Map<QuestionDto>(_questionRepository.GetQuestion(id));
+        var result = _mapper.Map<QuestionDto>(_questionRepository.GetQuestion(id).Result);
         
         if (result == null)
-            return NotFound($"Question with id = {id} was not found");
+            return NotFound($"Question with id: {id} was not found");
         
         return Ok(result);
     }
 
-    [HttpPost("{questionId}/addTag")]
+    [HttpPost("{questionId:long}/addTag")]
     [ProducesResponseType(204)]
     [ProducesResponseType(404)]
     public IActionResult AddTag(long questionId, [FromQuery] long tagId)
     {
-        var question = _questionRepository.GetQuestion(questionId);
+        var question = _questionRepository.GetQuestion(questionId).Result;
         
         if (question == null)
             return NotFound($"Question with id = {questionId} was not found");
         
-        var result = _questionRepository.AddTag(questionId, tagId);
+        var result = _questionRepository.AddTag(questionId, tagId).Result;
         
         if (!result)
             return BadRequest(ModelState);
@@ -70,7 +70,7 @@ public class QuestionController : ControllerBase
             return BadRequest(ModelState);
    
         var objectToSave = _mapper.Map<Question>(dto);
-        var result = _questionRepository.AddQuestion(objectToSave);
+        var result = _questionRepository.AddQuestion(objectToSave).Result;
         
         if (!result)
             return BadRequest(ModelState);
@@ -93,7 +93,7 @@ public class QuestionController : ControllerBase
             return BadRequest(ModelState);
 
         var objectToUpdate = _mapper.Map<Question>(updatedDtoObject);
-        var result = _questionRepository.UpdateQuestion(objectToUpdate);
+        var result = _questionRepository.UpdateQuestion(objectToUpdate).Result;
         
         if (!result)
             return BadRequest(ModelState);
@@ -107,15 +107,15 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(404)]
     public IActionResult DeleteQuestion(long id)
     {
-        var questionToDelete = _questionRepository.GetQuestion(id);
+        var questionToDelete = _questionRepository.GetQuestion(id).Result;
         
         if (questionToDelete == null)
-            return NotFound($"Question with id = {id} don't exist");
+            return NotFound($"Question with id: {id} don't exist");
         
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var result = _questionRepository.DeleteQuestion(questionToDelete);
+        var result = _questionRepository.DeleteQuestion(questionToDelete).Result;
 
         if (!result)
             return BadRequest(ModelState);
