@@ -23,7 +23,7 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(200, Type = typeof(IEnumerable<Question>))]
     public IActionResult GetQuestions()
     {
-        var result = _mapper.Map<List<QuestionDto>>(_questionRepository.GetQuestions());
+        var result = _questionRepository.GetQuestions();
         return Ok(result);
     }
 
@@ -40,10 +40,28 @@ public class QuestionController : ControllerBase
         return Ok(result);
     }
 
+    [HttpPost("{questionId}/addTag")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(404)]
+    public IActionResult AddTag(long questionId, [FromQuery] long tagId)
+    {
+        var question = _questionRepository.GetQuestion(questionId);
+        
+        if (question == null)
+            return NotFound($"Question with id = {questionId} was not found");
+        
+        var result = _questionRepository.AddTag(questionId, tagId);
+        
+        if (!result)
+            return BadRequest(ModelState);
+        
+        return Ok("Tag was successfully added");
+    }
+
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public IActionResult AddQuestion([FromBody] QuestionDto? dto, [FromQuery] long tagId)
+    public IActionResult AddQuestion([FromBody] QuestionDto? dto)
     {
         if (dto == null)
             return BadRequest(ModelState);
@@ -52,7 +70,7 @@ public class QuestionController : ControllerBase
             return BadRequest(ModelState);
    
         var objectToSave = _mapper.Map<Question>(dto);
-        var result = _questionRepository.AddQuestion(objectToSave, tagId);
+        var result = _questionRepository.AddQuestion(objectToSave);
         
         if (!result)
             return BadRequest(ModelState);
@@ -84,7 +102,7 @@ public class QuestionController : ControllerBase
     }
 
     [HttpDelete("{id:long}")]
-    [ProducesResponseType(200)]
+    [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     public IActionResult DeleteQuestion(long id)
