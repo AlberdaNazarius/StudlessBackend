@@ -4,9 +4,9 @@ namespace StudlessBackend.Persistence.Repositories;
 
 public interface ITagRepository
 {
-    ICollection<Tag> GetTags();
-    Tag? GetTag(long id);
-    bool Save();
-    bool AddTag(Tag tag);
-    bool DeleteTag(Tag tagToDelete);
+    Task<ICollection<Tag>> GetTags();
+    Task<Tag?> GetTag(long id);
+    Task<bool> Save();
+    Task<bool> AddTag(Tag tag);
+    Task<bool> DeleteTag(Tag tagToDelete);
 }

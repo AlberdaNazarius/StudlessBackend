@@ -23,7 +23,7 @@ public class TagController: ControllerBase
     [ProducesResponseType(200)]
     public IActionResult GetTags()
     {
-        var result = _mapper.Map<List<TagDto>>(_tagRepository.GetTags());
+        var result = _mapper.Map<List<TagDto>>(_tagRepository.GetTags().Result);
         return Ok(result);
     }
     
@@ -32,10 +32,10 @@ public class TagController: ControllerBase
     [ProducesResponseType(404)]
     public IActionResult GetTag(long id)
     {
-        var result = _mapper.Map<TagDto>(_tagRepository.GetTag(id));
+        var result = _mapper.Map<TagDto>(_tagRepository.GetTag(id).Result);
         
         if (result == null)
-            return NotFound($"Tag with id = {id} was not found");
+            return NotFound($"Tag with id: {id} was not found");
         
         return Ok(result);
     }
@@ -52,7 +52,7 @@ public class TagController: ControllerBase
             return BadRequest(ModelState);
    
         var objectToSave = _mapper.Map<Tag>(dto);
-        var result = _tagRepository.AddTag(objectToSave);
+        var result = _tagRepository.AddTag(objectToSave).Result;
         
         if (!result)
             return BadRequest(ModelState);
@@ -66,15 +66,15 @@ public class TagController: ControllerBase
     [ProducesResponseType(404)]
     public IActionResult DeleteTag(long id)
     {
-        var tagToDelete = _tagRepository.GetTag(id);
+        var tagToDelete = _tagRepository.GetTag(id).Result;
         
         if (tagToDelete == null)
-            return NotFound($"Question with id = {id} don't exist");
+            return NotFound($"Question with id: {id} don't exist");
         
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var result = _tagRepository.DeleteTag(tagToDelete);
+        var result = _tagRepository.DeleteTag(tagToDelete).Result;
 
         if (!result)
             return BadRequest(ModelState);

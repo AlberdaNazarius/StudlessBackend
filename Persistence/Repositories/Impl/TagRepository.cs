@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using StudlessBackend.Persistence.Models;
 
 namespace StudlessBackend.Persistence.Repositories.Impl;
@@ -11,30 +12,30 @@ public class TagRepository : ITagRepository
         _context = context;
     }
     
-    public ICollection<Tag> GetTags()
+    public async Task<ICollection<Tag>> GetTags()
     {
-        return _context.Tags!.ToList();
+        return await _context.Tags!.ToListAsync();
     }
 
-    public Tag? GetTag(long id)
+    public async Task<Tag?> GetTag(long id)
     {
-        return _context.Tags!.FirstOrDefault(e => e.Id == id);
+        return await _context.Tags!.FirstOrDefaultAsync(e => e.Id == id);
     }
 
-    public bool Save()
+    public async Task<bool> Save()
     {
-        return _context.SaveChanges() > 0;
+        return await _context.SaveChangesAsync() > 0;
     }
 
-    public bool AddTag(Tag tag)
+    public async Task<bool> AddTag(Tag tag)
     {
-        _context.Add(tag);
-        return Save();
+        await _context.AddAsync(tag);
+        return await Save();
     }
 
-    public bool DeleteTag(Tag tagToDelete)
+    public async Task<bool> DeleteTag(Tag tagToDelete)
     {
         _context.Remove(tagToDelete);
-        return Save();
+        return await Save();
     }
 }
