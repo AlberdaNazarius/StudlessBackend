@@ -21,7 +21,7 @@ public class TagController: ControllerBase
 
     [HttpGet("tags")]
     [ProducesResponseType(200)]
-    public async Task<IActionResult> GetTags()
+    public async Task<ActionResult<ICollection<TagDto>>> GetTags()
     {
         var result = _mapper.Map<List<TagDto>>(await _tagRepository.GetTags());
         return Ok(result);
@@ -30,7 +30,7 @@ public class TagController: ControllerBase
     [HttpGet("{id:long}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> GetTag(long id)
+    public async Task<ActionResult<TagDto>> GetTag(long id)
     {
         var result = _mapper.Map<TagDto>(await _tagRepository.GetTag(id));
         
@@ -43,7 +43,7 @@ public class TagController: ControllerBase
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> AddTag([FromBody] TagDto? dto)
+    public async Task<ActionResult<string>> AddTag([FromBody] TagDto? dto)
     {
         if (dto == null)
             return BadRequest(ModelState);
@@ -64,7 +64,7 @@ public class TagController: ControllerBase
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> DeleteTag(long id)
+    public async Task<ActionResult<NoContentResult>> DeleteTag(long id)
     {
         var tagToDelete = await _tagRepository.GetTag(id);
         

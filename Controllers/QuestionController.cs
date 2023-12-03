@@ -21,7 +21,7 @@ public class QuestionController : ControllerBase
 
     [HttpGet("questions")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Question>))]
-    public async Task<IActionResult> GetQuestions()
+    public async Task<ActionResult<ICollection<QuestionDto>>> GetQuestions()
     {
         var result = _mapper.Map<List<QuestionDto>>(await _questionRepository.GetQuestions());
         return Ok(result);
@@ -30,7 +30,7 @@ public class QuestionController : ControllerBase
     [HttpGet("{id:long}")]
     [ProducesResponseType(200, Type = typeof(Question))]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> GetQuestion(long id)
+    public async Task<ActionResult<QuestionDto>> GetQuestion(long id)
     {
         var result = _mapper.Map<QuestionDto>(await _questionRepository.GetQuestion(id));
         
@@ -43,7 +43,7 @@ public class QuestionController : ControllerBase
     [HttpPost("{questionId:long}/addTag")]
     [ProducesResponseType(204)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> AddTag(long questionId, [FromQuery] long tagId)
+    public async Task<ActionResult<string>> AddTag(long questionId, [FromQuery] long tagId)
     {
         var question = await _questionRepository.GetQuestion(questionId);
         
@@ -61,7 +61,7 @@ public class QuestionController : ControllerBase
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> AddQuestion([FromBody] QuestionDto? dto)
+    public async Task<ActionResult<string>> AddQuestion([FromBody] QuestionDto? dto)
     {
         if (dto == null)
             return BadRequest(ModelState);
@@ -81,7 +81,7 @@ public class QuestionController : ControllerBase
     [HttpPut("{id:long}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> UpdateQuestion([FromBody] QuestionDto? updatedDtoObject, long id)
+    public async Task<ActionResult<NoContentResult>> UpdateQuestion([FromBody] QuestionDto? updatedDtoObject, long id)
     {
         if (updatedDtoObject == null)
             return BadRequest(ModelState);
@@ -105,7 +105,7 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> DeleteQuestion(long id)
+    public async Task<ActionResult<NoContentResult>> DeleteQuestion(long id)
     {
         var questionToDelete = await _questionRepository.GetQuestion(id);
         
