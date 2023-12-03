@@ -21,29 +21,47 @@ public class QuestionController : ControllerBase
 
     [HttpGet("questions")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Question>))]
-    public IActionResult GetQuestions()
+    public async Task<ActionResult<ICollection<QuestionDto>>> GetQuestions()
     {
-        var result = _mapper.Map<List<QuestionDto>>(_questionRepository.GetQuestions());
+        var result = _mapper.Map<List<QuestionDto>>(await _questionRepository.GetQuestions());
         return Ok(result);
     }
 
     [HttpGet("{id:long}")]
     [ProducesResponseType(200, Type = typeof(Question))]
     [ProducesResponseType(404)]
-    public IActionResult GetQuestion(long id)
+    public async Task<ActionResult<QuestionDto>> GetQuestion(long id)
     {
-        var result = _mapper.Map<QuestionDto>(_questionRepository.GetQuestion(id));
+        var result = _mapper.Map<QuestionDto>(await _questionRepository.GetQuestion(id));
         
         if (result == null)
-            return NotFound($"Question with id = {id} was not found");
+            return NotFound($"Question with id: {id} was not found");
         
         return Ok(result);
+    }
+
+    [HttpPost("{questionId:long}/addTag")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<string>> AddTag(long questionId, [FromQuery] long tagId)
+    {
+        var question = await _questionRepository.GetQuestion(questionId);
+        
+        if (question == null)
+            return NotFound($"Question with id: {questionId} was not found");
+        
+        var result = await _questionRepository.AddTag(questionId, tagId);
+        
+        if (!result)
+            return BadRequest(ModelState);
+        
+        return Ok("Tag was successfully added");
     }
 
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public IActionResult AddQuestion([FromBody] QuestionDto? dto, [FromQuery] long tagId)
+    public async Task<ActionResult<string>> AddQuestion([FromBody] QuestionDto? dto)
     {
         if (dto == null)
             return BadRequest(ModelState);
@@ -52,18 +70,18 @@ public class QuestionController : ControllerBase
             return BadRequest(ModelState);
    
         var objectToSave = _mapper.Map<Question>(dto);
-        var result = _questionRepository.AddQuestion(objectToSave, tagId);
+        var result = await _questionRepository.AddQuestion(objectToSave);
         
         if (!result)
             return BadRequest(ModelState);
         
-        return Ok("Successfully created");
+        return Ok("Question was successfully created");
     }
 
     [HttpPut("{id:long}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
-    public IActionResult UpdateQuestion([FromBody] QuestionDto? updatedDtoObject, long id)
+    public async Task<ActionResult<NoContentResult>> UpdateQuestion([FromBody] QuestionDto? updatedDtoObject, long id)
     {
         if (updatedDtoObject == null)
             return BadRequest(ModelState);
@@ -75,7 +93,7 @@ public class QuestionController : ControllerBase
             return BadRequest(ModelState);
 
         var objectToUpdate = _mapper.Map<Question>(updatedDtoObject);
-        var result = _questionRepository.UpdateQuestion(objectToUpdate);
+        var result = await _questionRepository.UpdateQuestion(objectToUpdate);
         
         if (!result)
             return BadRequest(ModelState);
@@ -84,20 +102,20 @@ public class QuestionController : ControllerBase
     }
 
     [HttpDelete("{id:long}")]
-    [ProducesResponseType(200)]
+    [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public IActionResult DeleteQuestion(long id)
+    public async Task<ActionResult<NoContentResult>> DeleteQuestion(long id)
     {
-        var questionToDelete = _questionRepository.GetQuestion(id);
+        var questionToDelete = await _questionRepository.GetQuestion(id);
         
         if (questionToDelete == null)
-            return NotFound($"Question with id = {id} don't exist");
+            return NotFound($"Question with id: {id} don't exist");
         
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var result = _questionRepository.DeleteQuestion(questionToDelete);
+        var result = await _questionRepository.DeleteQuestion(questionToDelete);
 
         if (!result)
             return BadRequest(ModelState);
