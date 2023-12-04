@@ -14,12 +14,23 @@ public class QuestionRepository : IQuestionRepository
 
     public async Task<ICollection<Question>> GetQuestions()
     {
-        return await _context.Questions!
+        var questions = await _context.Questions!
             .Include(q => q.Author)
             .Include(q => q.QuestionTags)
             .Include(q => q.Answers)
             .OrderBy(q => q.Id)
             .ToListAsync();
+
+        foreach (var question in questions)
+        {
+            foreach (var questionTag in question.QuestionTags!)
+            {
+                var tag = await _context.Tags!.FirstOrDefaultAsync(t => t.Id == questionTag.TagId);
+                questionTag.Tag = tag;
+            }
+        }
+
+        return questions;
     }
 
     public async Task<Question?> GetQuestion(long id)
