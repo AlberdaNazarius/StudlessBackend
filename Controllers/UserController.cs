@@ -54,4 +54,23 @@ public class UserController : ControllerBase
         return Ok("User was successfully created");
     }
 
+    [HttpGet("users")]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<User>))]
+    public async Task<ActionResult<ICollection<UserDto>>> getUsers()
+    {
+        var result = _mapper.Map<List<UserDto>>(await _userRepository.GetUsers());
+        return Ok(result);
+    }
+    [HttpDelete("delete-user/{id:long}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    public async Task<ActionResult<string>> deleteUser(long id)
+    {
+        Console.WriteLine("ban user started");
+        var userToBan =  _userRepository.FindById(id);
+        if(await _userRepository.DeleteUser(userToBan.Id))
+            return Ok("user was banned");
+        return BadRequest("some error with ban");
+    }
+
 }

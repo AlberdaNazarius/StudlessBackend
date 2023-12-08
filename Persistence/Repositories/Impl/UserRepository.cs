@@ -38,14 +38,9 @@ public class UserRepository : IUserRepository
     {
         return _context.Users.FirstOrDefault(u => u.Id == id);
     }
-    public async Task<bool> DelteUser(User user){
-        if (user != null && _context.Users != null)
-        {
-            _context.Users.Remove(user);
+    public async Task<bool> DeleteUser(long id){
+            _context.Users.Remove(FindById(id));
             return await Save();
-        }
-
-    return false;
     }
 
     public async Task<bool> AddUser(User user)

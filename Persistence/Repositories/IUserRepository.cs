@@ -10,6 +10,6 @@ public interface IUserRepository
     public User FindByEmail(string email);
     User FindById(long id);
     Task<ICollection<User>> GetUsers();
-    Task<bool> DelteUser(User user);
+    Task<bool> DeleteUser(long id);
 
 }
