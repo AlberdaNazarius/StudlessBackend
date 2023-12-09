@@ -8,7 +8,12 @@ public class MappingProfiles : Profile
 {
     public MappingProfiles()
     {
-        CreateMap<User, UserDto>().ReverseMap();
+        CreateMap<User, UserDto>()
+            .ForMember(dto => dto.AnswersId, opt => opt
+                .MapFrom(user => user.Answers.Select(answer => answer.Id).ToArray()))
+            .ForMember(dto => dto.QuestionsId, opt => opt
+                .MapFrom(user => user.Questions.Select(question => question.Id).ToArray()))
+            .ReverseMap(); 
         CreateMap<Answer, AnswerDto>().ReverseMap();
         CreateMap<Tag, TagDto>().ReverseMap();
         CreateMap<QuestionDto, Question>();
