@@ -8,17 +8,19 @@ namespace StudlessBackend.Controllers;
 
 [Route("api/topic")]
 [ApiController]
-public class TopicController: ControllerBase
+public class TopicController : ControllerBase
 {
     private readonly ITopicRepository _topicRepository;
     private readonly IQuestionRepository _questionRepository;
     private readonly IMapper _mapper;
+    private readonly ILogger<TopicController> _logger;
 
-    public TopicController(ITopicRepository topicRepository, IQuestionRepository questionRepository, IMapper mapper)
+    public TopicController(ITopicRepository topicRepository, IQuestionRepository questionRepository, IMapper mapper, ILogger<TopicController> logger)
     {
         _topicRepository = topicRepository;
         _questionRepository = questionRepository;
         _mapper = mapper;
+        _logger = logger;
     }
 
     [HttpGet("topics")]
@@ -28,17 +30,17 @@ public class TopicController: ControllerBase
         var result = _mapper.Map<List<TopicDto>>(await _topicRepository.GetTopics());
         return Ok(result);
     }
-    
+
     [HttpGet("{id:long}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TopicDto>> GetTopic(long id)
     {
         var result = _mapper.Map<TopicDto>(await _topicRepository.GetTopic(id));
-        
+
         if (result == null)
             return NotFound($"{typeof(Topic).Name} with id: {id} was not found");
-        
+
         return Ok(result);
     }
 
@@ -53,15 +55,16 @@ public class TopicController: ControllerBase
             return NotFound($"No {typeof(Topic).Name} with id: {id} was not found");
 
         var questions = topic.Questions;
-        
+
         if (questions == null || !questions.Any())
             return NotFound($"No questions in {typeof(Topic).Name} with id: {id} was not found");
-        
+
         var result = questions.OrderByDescending(q => q.AskedDate).First();
+        result = (await _questionRepository.GetQuestion(result.Id))!;
 
         return Ok(_mapper.Map<QuestionDto>(result));
     }
-    
+
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -69,10 +72,10 @@ public class TopicController: ControllerBase
     {
         var topic = _mapper.Map<Topic>(dto);
         var result = await _topicRepository.AddTopic(topic);
-        
+
         if (!result)
             return BadRequest(ModelState);
-        
+
         return CreatedAtAction(nameof(GetTopic), new { id = topic.Id }, _mapper.Map<TopicDto>(topic));
     }
 
@@ -85,7 +88,7 @@ public class TopicController: ControllerBase
 
         if (topic == null)
             return NotFound($"No {typeof(Topic).Name} with id: {id} was not found");
-        
+
         var question = await _questionRepository.GetQuestion(questionId);
 
         if (question == null)
@@ -99,7 +102,7 @@ public class TopicController: ControllerBase
         return Ok($"Successfully added {typeof(Question).Name} with id: {questionId} to {typeof(Topic).Name}");
     }
 
-    
+
     [HttpDelete("{id:long}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -107,7 +110,7 @@ public class TopicController: ControllerBase
     public async Task<ActionResult> DeleteTopic(long id)
     {
         var topicToDelete = await _topicRepository.GetTopic(id);
-        
+
         if (topicToDelete == null)
             return NotFound($"{typeof(Topic).Name} with id: {id} don't exist");
 
@@ -115,7 +118,7 @@ public class TopicController: ControllerBase
 
         if (!result)
             return BadRequest(ModelState);
-        
+
         return NoContent();
     }
 }
