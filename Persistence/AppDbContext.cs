@@ -9,6 +9,7 @@ public class AppDbContext : DbContext
     public DbSet<Question>? Questions { get; set; }
     public DbSet<Answer>? Answers { get; set; }
     public DbSet<Tag>? Tags { get; set; }
+    public DbSet<Topic>? Topics { get; set; }
     
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
