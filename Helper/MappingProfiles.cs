@@ -18,5 +18,6 @@ public class MappingProfiles : Profile
                         q.QuestionTags!
                             .Select(qt => qt.Tag)
                             .ToList()));
+        CreateMap<Topic, TopicDto>().ReverseMap();
     }
 }

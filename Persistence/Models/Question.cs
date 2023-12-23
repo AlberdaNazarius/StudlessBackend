@@ -13,4 +13,5 @@ public class Question
     public User? Author { get; set; }
     public ICollection<QuestionTag>? QuestionTags { get; set; } 
     public ICollection<Answer>? Answers { get; set; }
+    public Topic? Topic { get; set; }
 }
